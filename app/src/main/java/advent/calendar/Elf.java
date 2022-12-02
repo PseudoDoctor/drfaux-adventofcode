@@ -33,7 +33,13 @@ package advent.calendar;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.google.common.base.Strings;
 
 public class Elf {
@@ -45,18 +51,20 @@ public class Elf {
 
     }
 
-    public Elf(ArrayList<String> calories) {
+    public Elf(ArrayList<String> calories,int originalIndex) {
         listOfCalories = calories;
         totalCalories = setTotalCalories();
+        this.originalIndex = originalIndex;
     }
 
-    public Elf(String[] calories) {
+    public Elf(String[] calories,int originalIndex) {
         ArrayList<String> caloriess = new ArrayList<String>();
         for (String string : calories) {
             caloriess.add(string);
         }
         listOfCalories = caloriess;
         totalCalories = setTotalCalories();
+        this.originalIndex = originalIndex;
     }
 
     private void setOriginalIndex(int i){
@@ -98,17 +106,20 @@ public class Elf {
         String line;
         int originalIndex = 0;
         while ((line = bufferedReader.readLine()) != null) {
+            System.out.println("Processing: "+line);
             if (Strings.isNullOrEmpty(line)) {
-                ArrayList<String> c = new ArrayList<String>(calories);
-                Elf e = new Elf(c);
-                e.setOriginalIndex(originalIndex);
-                originalIndex++;
-                System.out.println(e.getListOfCalories());
-                elves.add(new Elf(new ArrayList<String>(calories)));
+                System.out.println("Line blank, Adding new elf#"+originalIndex+" with "+calories);
+                elves.add(new Elf(new ArrayList<String>(calories),originalIndex));
                 calories.clear();
+                originalIndex++;
             } else {
+                System.out.println("Line not blank");
                 calories.add(line);
             }
+        }
+        if(calories.size() > 0){
+            System.out.println("Last elf missed, adding elf#"+originalIndex+" with "+calories);
+            elves.add(new Elf(new ArrayList<String>(calories),originalIndex));
         }
         return elves;
     }
@@ -129,7 +140,49 @@ public class Elf {
         System.out.println("Elf number " + maxIndex + " had " + max + " calories");
         return max;
     }
+    public Map<Integer, Elf> getElvesAsMap(ArrayList<Elf> elves) {
+        Map<Integer, Elf> elfMap = new HashMap<>();
+        for (Elf elf : elves) {
+            elfMap.put(Integer.valueOf(elf.getTotalCalories()),elf);
+        }
+        return elfMap;
+    }
 
+    public Map<Integer,Elf> topThreeElves(ArrayList<Elf> elves){
+        Map<Integer, Elf> elfMap = getElvesAsMap(elves);
+        return topThreeElves(elfMap);
+    }
+    public Map<Integer,Elf> topThreeElves(Map<Integer,Elf> elfMap){
+        Map<Integer,Elf> sortedElves = elfMap.entrySet().stream().sorted((e1,e2)->
+                Integer.valueOf(e1.getValue().getTotalCalories())
+                .compareTo(Integer.valueOf(e2.getValue().getTotalCalories())))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+                (e1, e2) -> e1, LinkedHashMap::new));
+        
+        sortedElves.forEach((key,val)->{
+            System.out.println("Elf #"+val.getOriginalIndex()+" had "+val.getTotalCalories()+" calories");
+        });
+        return sortedElves;
+    }
+//     Map<String,Person> map = new HashMap<>();
+// map.put("g",new Person(5, "EE", 51, Person.SEX.FEMALE, "A"));
+// map.put("a",new Person(4, "DD", 25, Person.SEX.MALE, "D"));
+// map.put("e",new Person(3, "CC", 44, Person.SEX.FEMALE,"B"));
+
+// Map<String,Person> sortedNewMap = map.entrySet().stream().sorted((e1,e2)->
+//         e1.getValue().getLocation().compareTo(e2.getValue().getLocation()))
+//         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+//                 (e1, e2) -> e1, LinkedHashMap::new));
+// sortedNewMap.forEach((key,val)->{
+//     System.out.println(key+ " = "+ val.toString());
+
+    public int grandTotal(ArrayList<Elf> elves){
+        int total = 0;
+        for (Elf elf : elves) {
+            total += elf.getTotalCalories();
+        }
+        return total;
+    }
     // public ArrayList<Elf> topElves(ArrayList<Elf> elves) {
     //     Collections.sort()
     // }
