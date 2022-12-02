@@ -30,7 +30,7 @@ class ElfTest {
     @Test void topThreeSmallSample() throws IOException {
         BufferedReader br = getResourceAsBufferedReader("day1/input/smallinput.txt");
         ArrayList<Elf> elves = new Elf().populateElves(br);
-        new Elf().topThreeElves(elves);
+        new Elf().sortedElves(elves);
     }
     public BufferedReader getResourceAsBufferedReader(String path) {
         InputStream is = getClass().getClassLoader().getResourceAsStream(path);

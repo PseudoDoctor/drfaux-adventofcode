@@ -5,7 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class App {
 
@@ -22,18 +23,46 @@ public class App {
         return br;
     }
 
-    public static void main(String[] args) {
-        System.out.println(new App().getGreeting());
-
+    public void day1(){
         try (BufferedReader br = new App().getResourceAsBufferedReader(DAY1_INPUT)){
             ArrayList<Elf> elves = new Elf().populateElves(br);
+            // Day 1 part 1, max elf
             int max = new Elf().maxCalories(elves);
-            System.out.println(max);
+            System.out.println("The most calories carried by a single elf is "+max);
+            // Day 1 part 2, top 3 elf total
+            Map<Integer,Elf> elfMap = new Elf().sortedElves(elves);
+            int elfCount = elfMap.size();
+            Map<Integer,Elf> top3ElfMap = elfMap.entrySet().stream()
+                .skip(elfCount-3)
+                .collect(Collectors.toMap(
+                    Map.Entry::getKey
+                   , Map.Entry::getValue
+                    ));
+            top3ElfMap.forEach((key,val)->{
+                    out("Top Elf #"+val.getOriginalIndex()+" had "+val.getTotalCalories()+" calories");
+                });
+            int topElfTotal = new Elf().grandTotal(top3ElfMap);
+            System.out.println("Total for top 3 elfs "+topElfTotal);
+            
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        List<Elf> e;
+
+    }
+    public void day2() {
+
+    }
+
+    public static void main(String[] args) {
+        System.out.println(new App().getGreeting());
+        new App().day1();
+        // new App().day2();
         
     }
+
+    private void out(String s){
+        // System.out.println(s);
+    }
+    
 }

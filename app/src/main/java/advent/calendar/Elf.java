@@ -1,40 +1,8 @@
-/*
- * For example, suppose the Elves finish writing their items' Calories and end up with the following list:
- * 
- * 1000
- * 2000
- * 3000
- * 
- * 4000
- * 
- * 5000
- * 6000
- * 
- * 7000
- * 8000
- * 9000
- * 
- * 10000
- * This list represents the Calories of the food carried by five Elves:
- * 
- * The first Elf is carrying food with 1000, 2000, and 3000 Calories, a total of 6000 Calories.
- * The second Elf is carrying one food item with 4000 Calories.
- * The third Elf is carrying food with 5000 and 6000 Calories, a total of 11000 Calories.
- * The fourth Elf is carrying food with 7000, 8000, and 9000 Calories, a total of 24000 Calories.
- * The fifth Elf is carrying one food item with 10000 Calories.
- * 
- * In case the Elves get hungry and need extra snacks, they need to know which Elf to ask: they'd like to know how many Calories are being carried by the Elf carrying the most Calories.
- * In the example above, this is 24000 (carried by the fourth Elf).
- * 
- * Find the Elf carrying the most Calories. How many total Calories is that Elf carrying?
- */
 package advent.calendar;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -67,21 +35,17 @@ public class Elf {
         this.originalIndex = originalIndex;
     }
 
-    private void setOriginalIndex(int i){
-        originalIndex = i;
-    }
-
     private int setTotalCalories() {
         int total = 0;
         for (String string : listOfCalories) {
             try {
                 int oldtotal = total;
                 total += Integer.valueOf(string);
-                // System.out.println(oldtotal+" + "+string+" = "+total);
+                out(oldtotal+" + "+string+" = "+total);
             } catch (Exception e) {
                 // TODO: Is this desired behavior? should it fail completely if the string isn't an int? Should we use a list of ints instead verifying each in a constructor first?
                 // For day1, this *should* be sufficient
-                System.out.println("WARNING, error parsing int from string '" + string + "'. Total may not be accurate.");
+                out("WARNING, error parsing int from string '" + string + "'. Total may not be accurate.");
                 // e.printStackTrace();
             }
         }
@@ -106,19 +70,19 @@ public class Elf {
         String line;
         int originalIndex = 0;
         while ((line = bufferedReader.readLine()) != null) {
-            System.out.println("Processing: "+line);
+            out("Processing: "+line);
             if (Strings.isNullOrEmpty(line)) {
-                System.out.println("Line blank, Adding new elf#"+originalIndex+" with "+calories);
+                out("Line blank, Adding new elf#"+originalIndex+" with "+calories);
                 elves.add(new Elf(new ArrayList<String>(calories),originalIndex));
                 calories.clear();
                 originalIndex++;
             } else {
-                System.out.println("Line not blank");
+                out("Line not blank");
                 calories.add(line);
             }
         }
         if(calories.size() > 0){
-            System.out.println("Last elf missed, adding elf#"+originalIndex+" with "+calories);
+            out("Last elf missed, adding elf#"+originalIndex+" with "+calories);
             elves.add(new Elf(new ArrayList<String>(calories),originalIndex));
         }
         return elves;
@@ -130,14 +94,14 @@ public class Elf {
         int maxIndex = 0;
         for (Elf elf : elves) {
             int elfTotal = elf.setTotalCalories();
-            System.out.println("This elf #" + index + " has " + elfTotal + ". Compared to previous max #" + maxIndex + " total " + max);
+            out("This elf #" + index + " has " + elfTotal + ". Compared to previous max #" + maxIndex + " total " + max);
             if (elfTotal > max) {
                 max = elfTotal;
                 maxIndex = index;
             }
             index++;
         }
-        System.out.println("Elf number " + maxIndex + " had " + max + " calories");
+        out("Elf number " + maxIndex + " had " + max + " calories");
         return max;
     }
     public Map<Integer, Elf> getElvesAsMap(ArrayList<Elf> elves) {
@@ -148,19 +112,22 @@ public class Elf {
         return elfMap;
     }
 
-    public Map<Integer,Elf> topThreeElves(ArrayList<Elf> elves){
+    public Map<Integer,Elf> sortedElves(ArrayList<Elf> elves){
         Map<Integer, Elf> elfMap = getElvesAsMap(elves);
-        return topThreeElves(elfMap);
+        return sortedElves(elfMap);
     }
-    public Map<Integer,Elf> topThreeElves(Map<Integer,Elf> elfMap){
+    public Map<Integer,Elf> sortedElves(Map<Integer,Elf> elfMap){
         Map<Integer,Elf> sortedElves = elfMap.entrySet().stream().sorted((e1,e2)->
                 Integer.valueOf(e1.getValue().getTotalCalories())
                 .compareTo(Integer.valueOf(e2.getValue().getTotalCalories())))
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
-                (e1, e2) -> e1, LinkedHashMap::new));
+            .collect(Collectors.toMap(
+                Map.Entry::getKey
+                , Map.Entry::getValue,
+                (e1, e2) -> e1
+                , LinkedHashMap::new));
         
         sortedElves.forEach((key,val)->{
-            System.out.println("Elf #"+val.getOriginalIndex()+" had "+val.getTotalCalories()+" calories");
+            out("Elf #"+val.getOriginalIndex()+" had "+val.getTotalCalories()+" calories");
         });
         return sortedElves;
     }
@@ -174,7 +141,7 @@ public class Elf {
 //         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
 //                 (e1, e2) -> e1, LinkedHashMap::new));
 // sortedNewMap.forEach((key,val)->{
-//     System.out.println(key+ " = "+ val.toString());
+//     out(key+ " = "+ val.toString());
 
     public int grandTotal(ArrayList<Elf> elves){
         int total = 0;
@@ -183,7 +150,15 @@ public class Elf {
         }
         return total;
     }
-    // public ArrayList<Elf> topElves(ArrayList<Elf> elves) {
-    //     Collections.sort()
-    // }
+    public int grandTotal(Map<Integer,Elf> elfMap){
+        int total = 0;
+        // Stream<Obj> filtered = list.stream().filter(o -> o.field > 10);
+        // int sum = filtered.collect(Collectors.summingInt(o -> o.field));
+        total = elfMap.entrySet().stream().collect(Collectors.summingInt(v->v.getValue().getTotalCalories()));
+        return total;
+    }
+ 
+    private void out(String s){
+        // System.out.println(s);
+    }
 }
