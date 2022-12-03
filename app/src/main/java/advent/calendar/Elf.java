@@ -131,18 +131,6 @@ public class Elf {
         });
         return sortedElves;
     }
-//     Map<String,Person> map = new HashMap<>();
-// map.put("g",new Person(5, "EE", 51, Person.SEX.FEMALE, "A"));
-// map.put("a",new Person(4, "DD", 25, Person.SEX.MALE, "D"));
-// map.put("e",new Person(3, "CC", 44, Person.SEX.FEMALE,"B"));
-
-// Map<String,Person> sortedNewMap = map.entrySet().stream().sorted((e1,e2)->
-//         e1.getValue().getLocation().compareTo(e2.getValue().getLocation()))
-//         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
-//                 (e1, e2) -> e1, LinkedHashMap::new));
-// sortedNewMap.forEach((key,val)->{
-//     out(key+ " = "+ val.toString());
-
     public int grandTotal(ArrayList<Elf> elves){
         int total = 0;
         for (Elf elf : elves) {
@@ -152,8 +140,6 @@ public class Elf {
     }
     public int grandTotal(Map<Integer,Elf> elfMap){
         int total = 0;
-        // Stream<Obj> filtered = list.stream().filter(o -> o.field > 10);
-        // int sum = filtered.collect(Collectors.summingInt(o -> o.field));
         total = elfMap.entrySet().stream().collect(Collectors.summingInt(v->v.getValue().getTotalCalories()));
         return total;
     }

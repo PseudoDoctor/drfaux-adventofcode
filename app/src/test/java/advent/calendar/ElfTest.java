@@ -28,7 +28,7 @@ class ElfTest {
         assertEquals(total,6000,"should have 6000 calories");
     }
     @Test void topThreeSmallSample() throws IOException {
-        BufferedReader br = getResourceAsBufferedReader("day1/input/smallinput.txt");
+        BufferedReader br = getResourceAsBufferedReader("day1/smallinput.txt");
         ArrayList<Elf> elves = new Elf().populateElves(br);
         new Elf().sortedElves(elves);
     }

@@ -7,10 +7,11 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.stream.Collectors;
+import advent.calendar.day1.Day1Manual;
 
 public class App {
 
-    public static final String DAY1_INPUT = "day1/input/input.omcsettings.txt";
+    public static final String DAY1_INPUT = "day1/input.omcsettings.txt";
 
     public String getGreeting() {
         return "Hello World!";
@@ -54,9 +55,11 @@ public class App {
 
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         System.out.println(new App().getGreeting());
         new App().day1();
+        Day1Manual.day1Part1();
+        Day1Manual.day1Part2();
         // new App().day2();
         
     }
