@@ -13,7 +13,8 @@ import advent.calendar.day1.Day1Manual;
 
 public class App {
 
-    public static final String DAY1_INPUT = "day1/smallinput.txt";
+    // public static final String DAY1_INPUT = "day1/smallinput.txt";
+    public static final String DAY1_INPUT = "day1/input.txt";
     
 
     public String getGreeting() {

@@ -56,7 +56,7 @@ public class Day1Manual {
     }
 
     public static void day1Part1() throws IOException {
-        try (InputStream is = new FileInputStream(App.DAY1_INPUT)) {
+        try (InputStream is = new FileInputStream("/home/mark/git/pseudodoctor-advent-2022/java-based/src/main/resources/"+App.DAY1_INPUT)) {
             byte[] buffer = new byte[0];
             boolean wasDigit = false;
             int max = 0;
@@ -103,7 +103,7 @@ public class Day1Manual {
     }
 
     public static void day1Part2() throws IOException {
-        try (InputStream is = new FileInputStream(App.DAY1_INPUT)) {
+        try (InputStream is = new FileInputStream("/home/mark/git/pseudodoctor-advent-2022/java-based/src/main/resources/"+App.DAY1_INPUT)) {
             byte[] buffer = new byte[0];
             int[] topThree = {0, 0, 0};
             boolean wasDigit = false;
