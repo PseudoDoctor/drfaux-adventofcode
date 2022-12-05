@@ -2,6 +2,7 @@ use std::{
     fs::{self, metadata, File},
     io::{BufRead, BufReader, Read},
     str,
+    cmp,
 };
 
 pub fn exists(path: &str) -> bool {
@@ -32,15 +33,23 @@ fn main() {
     let _regular_input = "day1/input.txt";
     // println!("{}", exists(_regular_input));
     let data = dump_file(_regular_input);
-    let max = max_elf_finder(data);
+    let top = max_elf_finder(data);
+    let mut max = 0;
+    let mut all = 0;
+    for t in top {
+        max = cmp::max(max,t);
+        all += t;
+    }
     println!("Max {}",max);
+    println!("Top three total {}",all);
 }
 
-fn max_elf_finder(_data: Vec<u8>) -> i32 {
+fn max_elf_finder(_data: Vec<u8>) -> Vec<i32> {
     let mut was_digit = false;
-    let mut max = 0;
+    // let mut max = 0;
     let mut elf = 0;
     let mut buf: Vec<u8> = vec![];
+    let mut top: Vec<i32> = Vec::new();
     for b in _data {
         match b {
             b'\n' => {
@@ -61,9 +70,13 @@ fn max_elf_finder(_data: Vec<u8>) -> i32 {
                     elf += i;
                     // print!("{}", elf);
                 } else {
-                    // end of elf, is it max?
-                    if elf > max {
-                        max = elf;
+                    // part 2
+                    top.push(elf);
+                    if top.len()>3 {
+                        // sort and drop min value
+                        top.sort();
+                        top.reverse();
+                        top.pop();
                     }
                     // reset elf
                     elf = 0;
@@ -80,7 +93,7 @@ fn max_elf_finder(_data: Vec<u8>) -> i32 {
             _ => println!("Unhandled character"),
         }
     }
-    max
+    top
 }
 
 
