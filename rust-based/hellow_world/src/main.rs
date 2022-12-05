@@ -1,9 +1,30 @@
 use std::{
+    cmp,
+    collections::HashMap,
     fs::{self, metadata, File},
     io::{BufRead, BufReader, Read},
     str,
-    cmp,
 };
+static ROCK: i32 = 1;
+static PAPER: i32 = 2;
+static SCISSORS: i32 = 3;
+static LOSE: i32 = 0;
+static DRAW: i32 = 3;
+static WIN: i32 = 6;
+
+// Rock defeats Scissors,
+// Scissors defeats Paper, and
+// Paper defeats Rock.
+// If both players choose the same shape, the round instead ends in a draw.
+// The score for a single round is the score for the shape you selected
+// (1 for Rock, 2 for Paper, and 3 for Scissors) plus the score for the
+// outcome of the round (0 if you lost, 3 if the round was a draw, and 6 if you won).
+// A Y
+// B X
+// C Z
+// Round 1: Rock A, choose Paper Z. You win, score won 6 + choose paper 2 = 8.
+// Round 2: Paper B, choose Rock X. You lose, score lose 0 + choose rock 1 = 1.
+// Round 3: SCISSORS C, choose SCISSORS Z. Draw, score draw 2 + choose SCISSORS 3 = 6
 
 pub fn exists(path: &str) -> bool {
     if metadata(path).is_ok() {
@@ -23,179 +44,112 @@ fn dump_file(path: &str) -> Vec<u8> {
     let mut data = Vec::new();
     match file.read_to_end(&mut data) {
         Err(e) => println!("{:?}", e),
-        _ => ()
+        _ => (),
     }
     data
 }
 fn main() {
     println!("Hello, world!");
-    let _small_input = "day1/smallinput.txt";
-    let _regular_input = "day1/input.txt";
+    let _small_input = "day2/smallinput.txt";
+    let _regular_input = "day2/input.txt";
     // println!("{}", exists(_regular_input));
-    let data = dump_file(_regular_input);
-    let top = max_elf_finder(data);
-    let mut max = 0;
-    let mut all = 0;
-    for t in top {
-        max = cmp::max(max,t);
-        all += t;
-    }
-    println!("Max {}",max);
-    println!("Top three total {}",all);
+    let data = dump_file(_small_input);
+    let score = rock_paper_scisors(data);
+    println!("total score {}",score)
 }
-
-fn max_elf_finder(_data: Vec<u8>) -> Vec<i32> {
-    let mut was_digit = false;
-    // let mut max = 0;
-    let mut elf = 0;
-    let mut buf: Vec<u8> = vec![];
-    let mut top: Vec<i32> = Vec::new();
+fn rock_paper_scisors(_data: Vec<u8>) -> i32 {
+    let mut rounds: Vec<i32> = Vec::new();
+    let mut total: i32 = 0;
+    let mut prev: u8 = b'0';
+    let mut play: u8 = b'0';
+    let mut response: u8 = b'0';
     for b in _data {
-        match b {
-            b'\n' => {
-                // println!("end of line");
-                if was_digit {
-                    // buf's digits are an int, what is that int?
-                    let fub = buf.clone(); // clone the buffer so it can be parsed without compiler error
-                    // Copied from internet
-                    let s = String::from_utf8(fub)
-                        .map_err(|non_utf8| {
-                            String::from_utf8_lossy(non_utf8.as_bytes()).into_owned()
-                        })
-                        .unwrap();
-                    // cast string to int
-                    let i: i32 = s.parse().unwrap();
-                    // print!("{}", i);
-                    // add to elf total
-                    elf += i;
-                    // print!("{}", elf);
-                } else {
-                    // part 2
-                    top.push(elf);
-                    if top.len()>3 {
-                        // sort and drop min value
-                        top.sort();
-                        top.reverse();
-                        top.pop();
-                    }
-                    // reset elf
-                    elf = 0;
-                }
-                was_digit = false;
-                buf.clear();
-            }
-            b'0'..=b'9' => {
-                was_digit = true;
-                // add digit to buffer
-                buf.push(b);
-                // print!("digit");
-            }
-            _ => println!("Unhandled character"),
+        print!("{}-", b);
+        if b == b' ' {
+            play = prev;
+        } else if b == b'\n' {
+            response = prev;
+            let score = decidepart2(play, response);
+            rounds.push(score);
+            total += score;
         }
+        prev = b;
+
     }
-    top
+    for r in rounds {
+            println!(
+                "Rounds {}",r
+            )
+    }
+    println!("Total {}",total);
+    total
 }
 
+fn decidepart1(_play: u8, _response: u8) -> i32 {
+        // match b {
+        //     b'A'|b'X' => print!("Rock"),
+        //     b'B'|b'Y' => print!("Paper"),
+        //     b'C'|b'Z' => print!("Scis"),
+        //     b' ' => print!(" "),
+        //     b'\n'=> println!(""),
+        //     _ => println!("Unhandled")
+        // }
 
-
-fn loop_de_loop() {
-    let mut count = 0u32;
-
-    println!("Let's count until infinity!");
-
-    // Infinite loop
-    loop {
-        count += 1;
-
-        if count == 3 {
-            println!("three");
-
-            // Skip the rest of this iteration
-            continue;
-        }
-
-        println!("{}", count);
-
-        if count == 5 {
-            println!("OK, that's enough");
-
-            // Exit this loop
-            break;
-        }
+    let mut score: i32 = 0;
+    match _play {
+        b'A' => {print!("Rock vs ");
+            match _response {
+            b'X' => {print!("Rock");score += DRAW + ROCK},
+            b'Y' => {print!("Paper");score += WIN  + PAPER},
+            b'Z' => {print!("Sciscors");score += LOSE + SCISSORS},
+            _ => println!("Unhandled")
+        }},
+        b'B' => {print!("Paper vs ");
+             match _response {
+            b'X' => {print!("Rock");score += LOSE + ROCK},
+            b'Y' => {print!("Paper");score += DRAW + PAPER},
+            b'Z' => {print!("Sciscors");score += WIN  + SCISSORS},
+            _ => println!("Unhandled")
+        }},
+        b'C' => {print!("Sciscors vs ");
+            match _response {
+            b'X' => {print!("Rock");score += WIN + ROCK},
+            b'Y' => {print!("Paper");score += LOSE + PAPER},
+            b'Z' => {print!("Sciscors");score += DRAW + SCISSORS},
+            _ => println!("Unhandled")
+        }},
+        _ => println!("Unhandled")
     }
+    println!(" {}",score);
+    score
 }
 
-fn read_file_buffer(filepath: &str) -> Result<(), Box<dyn std::error::Error>> {
-    const BUFFER_LEN: usize = 512;
-    let mut buffer = [0u8; 512];
-
-    let mut file = File::open(filepath)?;
-
-    loop {
-        let read_count = file.read(&mut buffer)?;
-
-        do_something(&buffer[..read_count]);
-
-        if read_count != BUFFER_LEN {
-            break;
-        }
+fn decidepart2(_play: u8, _response: u8) -> i32 {
+    let mut score: i32 = 0;
+    match _play {
+        b'A' => {print!("Rock vs ");
+            match _response {
+            b'X' => {print!(" LOSE Sciscors");score += LOSE + SCISSORS},
+            b'Y' => {print!(" DRAW Rock");score += DRAW  + ROCK},
+            b'Z' => {print!(" WIN Paper");score += WIN + PAPER},
+            _ => println!("Unhandled")
+        }},
+        b'B' => {print!("Paper vs ");
+             match _response {
+            b'X' => {print!(" LOSE Rock");score += LOSE + ROCK},
+            b'Y' => {print!(" DRAW Paper");score += DRAW + PAPER},
+            b'Z' => {print!(" WIN Sciscors");score += WIN  + SCISSORS},
+            _ => println!("Unhandled")
+        }},
+        b'C' => {print!("Sciscors vs ");
+            match _response {
+            b'X' => {print!(" LOSE Paper");score += LOSE + PAPER},
+            b'Y' => {print!(" DRAW Sciscosrs");score += DRAW + SCISSORS},
+            b'Z' => {print!(" WIN Rock");score += WIN + ROCK},
+            _ => println!("Unhandled")
+        }},
+        _ => println!("Unhandled")
     }
-    Ok(())
-}
-
-fn do_something(_data: &[u8]) {
-    let mut was_digit = false;
-    let mut max = 0;
-    let mut elf = 0;
-    let mut buf: Vec<u8> = vec![];
-    for b in _data {
-        match *b {
-            b'\n' => {
-                // println!("end of line");
-                if was_digit {
-                    // buf's digits are an int, what is that int?
-                    let fub = buf.clone(); // clone the buffer so it can be parsed without compiler error
-                    // Copied from internet
-                    let s = String::from_utf8(fub)
-                        .map_err(|non_utf8| {
-                            String::from_utf8_lossy(non_utf8.as_bytes()).into_owned()
-                        })
-                        .unwrap();
-                    // cast string to int
-                    let i: i32 = s.parse().unwrap();
-                    // print!("{}", i);
-                    // add to elf total
-                    elf += i;
-                    // print!("{}", elf);
-                } else {
-                    // end of elf, is it max?
-                    if elf > max {
-                        max = elf;
-                    }
-                    // reset elf
-                    elf = 0;
-                }
-                was_digit = false;
-                buf.clear();
-            }
-            b'0'..=b'9' => {
-                was_digit = true;
-                // add digit to buffer
-                buf.push(*b);
-                // print!("digit");
-            }
-            _ => println!("Unhandled character"),
-        }
-    }
-    println!("Done processing, max calories: {}", max);
-    // println!("{}",std::str::from_utf8(_data).unwrap());
-}
-
-fn list_utf8_codes() {
-    let newline = b'\n';
-    println!("{:x?}", newline);
-    let newline = b"\n";
-    println!("{:x?}", newline);
-    let one = b"1";
-    println!("{:x?}", one);
+    println!(" {}",score);
+    score
 }
