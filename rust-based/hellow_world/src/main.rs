@@ -5,6 +5,7 @@ use std::{
     io::{BufRead, BufReader, Read},
     str,
 };
+
 fn dump_file(path: &str) -> Vec<u8> {
     let mut file = File::open(path).unwrap();
     // let mut contents = String::new();
@@ -17,109 +18,119 @@ fn dump_file(path: &str) -> Vec<u8> {
     }
     data
 }
+
 fn main() {
     println!("Hello, world!");
-    let _small_input = "day3/smallinput.txt";
-    let _regular_input = "day3/input.txt";
-    let _tiny_input = "day3/tinyinput.txt";
-    // println!("{}", exists(_tiny_input));
+    let _small_input = "day4/smallinput.txt";
+    let _regular_input = "day4/input.txt";
     let data = dump_file(_regular_input);
-    let mut elfs: Vec<String> = Vec::new();
-    let mut buffer: Vec<u8> = Vec::new();
-    for b in data {
-        if b == b'\n' {
-            elfs.push(buffer_2_string(buffer.clone()));
-            buffer.clear();
+    let mut buf: Vec<u8> = Vec::new();
+    let mut contained_count: i32 = 0;
+    let mut overlapped_count: i32 = 0;
+    for d in data {
+        if d == b'\n' {
+            let range = parse_ranges(buf.clone());
+            let contained = fully_contained(range.clone());
+            let overlaps = overlapped(range.clone());
+            // println!("contained {}", contained);
+            if contained {
+                contained_count += 1;
+            };
+            if overlaps {
+                overlapped_count += 1;
+            };
+            buf.clear();
         } else {
-            buffer.push(b);
+            buf.push(d);
         }
     }
-    // part 1
-    let mut sum1: i32 = 0;
-    for elf in elfs.clone() {
-        let len = elf.len();
-        let lenhalf = len/2;
-        let left = String::from(&elf[..lenhalf]);
-        let right = String::from(&elf[lenhalf..]);
-        // println!("left {} right {}",left,right);
-        // let common = common_characters(left.clone(),right.clone());
-        let common_single = common_character_single(left.clone(),right.clone());
-        // println!("Common character for {} and {} is {}",left,right,common_single.clone());
-        sum1 += get_priority(common_single);
-    }
-    println!("Sum1 {}",sum1);
-    // part 2
-    let mut sum2: i32 = 0;
-    loop {
-        if elfs.len() >= 3 {
-            let one = elfs.pop().unwrap();
-            let two = elfs.pop().unwrap();
-            let three = elfs.pop().unwrap();
-            let common_onetwo = common_characters(one.clone(), two);
-            let common_onetwothree = common_characters(common_onetwo, three);
-            let common = common_character_single(one.clone(), common_onetwothree.clone());
-            // println!( "Common char {}",common)
-            sum2 += get_priority(common);
-        } else {
-            if elfs.len() == 0 {
-                break;
-            } else {
-                println!("Bad state ");
-                break;
+    println!("Total Contained {}", contained_count);
+    println!("Overlapped {}", overlapped_count);
+}
+
+fn parse_ranges(_data: Vec<u8>) -> Vec<i32> {
+    let mut thingy: Vec<i32> = Vec::new();
+    let mut i_buf: Vec<i32> = Vec::new();
+    let mut i_b: i32 = 0;
+    for d in _data {
+        match d {
+            b'0'..=b'9' => {
+                let c: char = d as char;
+                let i: i32 = (c as u8 - b'0').into();
+                i_buf.push(i);
+                // print!("digit{} ", d as char);
+            }
+            b'-' => {
+                let mut place = 1;
+                i_buf.reverse();
+                for i in &i_buf {
+                    i_b += i * place;
+                    place = place * 10;
+                }
+                thingy.push(i_b);
+                // print!("dash{} ", d as char);
+                // println!("int{} ", i_b);
+                i_buf.clear();
+                i_b = 0;
+            }
+            b',' => {
+                let mut place = 1;
+                i_buf.reverse();
+                for i in &i_buf {
+                    i_b += i * place;
+                    place = place * 10;
+                }
+                thingy.push(i_b);
+                // print!("comma{} ", d as char);
+                // println!("int{} ", i_b);
+                i_buf.clear();
+                i_b = 0;
+            }
+            _ => {
+                print!("unhandled{} ", d as char);
             }
         }
     }
-    println!("Sum2 {}",sum2);
-    
+    let mut place = 1;
+    i_buf.reverse();
+    for i in &i_buf {
+        i_b += i * place;
+        place = place * 10;
+    }
+    thingy.push(i_b);
+
+    // println!("int{} ", i_b);
+    i_buf.clear();
+    i_b = 0;
+    // println!("");
+    thingy
 }
 
-fn buffer_2_string(_buffer: Vec<u8>) -> String {
-    let mut s = String::from("");
-    for b in _buffer {
-        s.push(b as char);
+fn overlapped(_ranges: Vec<i32>) -> bool {
+    if _ranges[0] <= _ranges[2] && _ranges[1] >= _ranges[2] {
+        return true;
+    } else if _ranges[2] <= _ranges[0] && _ranges[3] >= _ranges[0] {
+        return true;
+    } else {
+        return false;
     }
-    s
 }
 
-fn common_characters(_a: String,_b:String)->String{
-    let mut _s = String::from("");
-    for (i,a) in _a.bytes().enumerate() {
-        if _b.contains(a as char) {
-            _s.push(a as char);
-            // println!("{} from left at index {}",a as char,i);
+fn fully_contained(_ranges: Vec<i32>) -> bool {
+    if _ranges.len() == 4 {
+        print!("{}-{},{}-{} ", _ranges[0], _ranges[1], _ranges[2], _ranges[3]);
+        if (_ranges[0] <= _ranges[2] && _ranges[1] >= _ranges[3]) {
+            println!("yes right");
+            return true;
+        } else if (_ranges[2] <= _ranges[0] && _ranges[3] >= _ranges[1]) {
+            println!("yes left");
+            return true;
+        } else {
+            println!("no");
+            return false;
         }
+    } else {
+        println!("Not enough thingies");
     }
-    for (i,b) in _b.bytes().enumerate(){
-        if _s.contains(b as char) {
-            // println!("{} from right at index {}",b as char, i);
-        }
-    }
-    _s
-}
-
-fn common_character_single(_left: String,_right: String) -> char{
-    for l in _left.chars() {
-        for r in _right.chars() {
-            if l == r { return l}
-        }
-    }
-    '-'
-}
-
-fn get_priority(_char: char) -> i32 {
-    // Lowercase item types a through z have priorities 1 through 26.
-    // Uppercase item types A through Z have priorities 27 through 52.
-    let mut _p: i32 = -2;
-    match _char as u8 {
-        // range a-z and A-Z
-        // take the char's u8 value and subtract b'a' from it, then add 1 or 27
-        b'a'..=b'z' => _p = ((_char as u8) - b'a' + 1) as i32,
-        b'A'..=b'Z' => _p = ((_char as u8) - b'A' + 27) as i32,
-        _ => {
-            println!("Unhandled: {}", _char);
-            _p = -1
-        }
-    }
-    // println!("Char {} has priority {}", _char, p);
-    _p
+    false
 }
