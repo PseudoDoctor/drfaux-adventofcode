@@ -145,7 +145,7 @@ fn main() {
                             
                         }
                         println!("Requesting Move {} From {} to {}",count,from,to);
-                        let mut stacks2 = move_crates(stacks.clone(),count,from,to);
+                        let mut stacks2 = move_crates_all_at_once(stacks.clone(),count,from,to);
                         stacks = stacks2;
                         print!("Post move ");
                         for stack in &stacks {
@@ -203,7 +203,7 @@ fn get_column_count(_line: Vec<u8>) -> i32 {
     (_line.len() / 4) as i32
 }
 
-fn move_crates(mut _stacks: Vec<Vec<char>>, _count: i32, _from: i32, _to: i32) -> Vec<Vec<char>> {
+fn move_crates_one_by_one(mut _stacks: Vec<Vec<char>>, _count: i32, _from: i32, _to: i32) -> Vec<Vec<char>> {
     let from_index = (_from - 1) as usize;
     let to_index = (_to - 1) as usize;
     let mut crate_char: char = '0';
@@ -211,6 +211,22 @@ fn move_crates(mut _stacks: Vec<Vec<char>>, _count: i32, _from: i32, _to: i32) -
         crate_char = _stacks[from_index].pop().unwrap();
         _stacks[to_index].push(crate_char);
         println!("This is move {} which takes char {} from {} to {}",a,crate_char,_from,_to);
+    }
+    _stacks
+}
+fn move_crates_all_at_once(mut _stacks: Vec<Vec<char>>, _count: i32, _from: i32, _to: i32) -> Vec<Vec<char>> {
+    let from_index = (_from - 1) as usize;
+    let to_index = (_to - 1) as usize;
+    let mut crate_char: char = '0';
+    let mut small_stack:Vec<char> = Vec::new();
+    for a in 1..=_count {
+        crate_char = _stacks[from_index].pop().unwrap();
+        small_stack.push(crate_char);
+    }
+    print!("Small stack of {} items {:?} taken from {} and put on {}",_count,small_stack,_from,_to);
+    for b in 1..=_count {
+        crate_char = small_stack.pop().unwrap();
+        _stacks[to_index].push(crate_char);
     }
     _stacks
 }
