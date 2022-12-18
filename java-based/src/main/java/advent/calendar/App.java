@@ -13,9 +13,8 @@ import advent.calendar.day1.Day1Manual;
 
 public class App {
 
-    public static final String ROOT_DIR = "D:/git/pseudodoctor-advent-2022/";
-    // public static final String DAY1_INPUT = "day1/input.omcsettings.txt";
-    public static final String DAY1_INPUT = "day1/smallinput.txt";
+    // public static final String DAY1_INPUT = "day1/smallinput.txt";
+    public static final String DAY1_INPUT = "day1/input.txt";
     
 
     public String getGreeting() {
@@ -33,7 +32,7 @@ public class App {
     }
 
     public void day1(){
-        try (BufferedReader br = new App().getBufferedReader(ROOT_DIR+DAY1_INPUT)){
+        try (BufferedReader br = new App().getResourceAsBufferedReader(DAY1_INPUT)){
             ArrayList<Elf> elves = new Elf().populateElves(br);
             // Day 1 part 1, max elf
             int max = new Elf().maxCalories(elves);

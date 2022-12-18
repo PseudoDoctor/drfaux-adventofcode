@@ -8,5 +8,3 @@
  */
 
 rootProject.name = 'advent-2022'
-include(':java-based')
-include(':rust-based')
