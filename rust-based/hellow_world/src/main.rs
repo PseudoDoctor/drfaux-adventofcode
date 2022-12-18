@@ -32,12 +32,11 @@ struct CMD {
 struct DirFil {
     name: String,
     parent: String,
-    child_fileize: i32,
-    child_dirsize: i32,
     /// DIR if < 0, otherwise FILE
-    fil_size: i32,
-    /// DIRs only please
+    size: i32,
+    child_fileize: i32,
     child_dirs: Option<Vec<String>>,
+    child_dirsize: i32,
 }
 
 fn main() {
@@ -50,7 +49,7 @@ fn main() {
         name: String::from("/"),
         parent: String::from("/"),
         child_dirs: None,
-        fil_size: -1,
+        size: -1,
         child_fileize: -1,
         child_dirsize: -1,
     });
@@ -122,7 +121,7 @@ fn main() {
                         name,
                         parent,
                         child_dirs: None,
-                        fil_size: -1,
+                        size: -1,
                         child_fileize: -1,
                         child_dirsize: -1,
                     };
@@ -143,7 +142,7 @@ fn main() {
                     let fil = DirFil {
                         name,
                         parent,
-                        fil_size: size,
+                        size,
                         child_dirs: None,
                         child_fileize: -1,
                         child_dirsize: -1,
@@ -181,24 +180,48 @@ fn populate_sizes_in_dirs(_dirs: Vec<DirFil>, _fils: Vec<DirFil>) -> Vec<DirFil>
         let mut files: Vec<DirFil> = Vec::new();
         dir.child_fileize = 0;
         for f in filss.clone() {
-            if f.fil_size >= 0 && f.parent == dir.name {
+            if f.size >= 0 && f.parent == dir.name {
                 files.push(f.clone());
             }
         }
         // println!("Children of {} {:?}", dir.name, files);
         for f in files {
-            dir.child_fileize += f.fil_size;
+            dir.child_fileize += f.size;
         }
         return_dirs.push(dir);
     }
-    println!("Filesizes only {:?}",return_dirs);
+    println!("Filsize {:?}",return_dirs);
     // add child dirs to direct parent
-    for mut dir in dirss.clone() {
-        // find parent
+    // This needs to be recursive, keep going down until no children, then go back up until you can go back down again
 
-    }
-     
+    let t = total_size(dirss.clone());
     //
-    println!("Subfolders added {:?}",return_dirs);
+    println!("Dirsize {:?}",return_dirs);
     return_dirs
+}
+
+fn total_size(_dirfil_subset:Vec<DirFil>) -> i32 {
+    let dirfil = _dirfil_subset.clone();
+    let mut return_i32: i32 = 0;
+    for d in dirfil.clone() {
+        if d.child_dirs.is_none() {
+            // no children, return
+            if d.child_fileize < 0{
+                // no subfiles?
+                return_i32 += 0;
+            } else {
+                return_i32 += d.child_fileize;
+            }
+        } else {
+            let children = d.child_dirs.unwrap();
+            for c in children {
+                for dd in dirfil.clone() {
+                    if d.name == c {
+                        return_i32 += total_size(vec![dd]);
+                    }
+                }
+            }
+        }
+    }
+    return_i32
 }
