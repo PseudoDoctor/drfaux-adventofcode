@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.stream.Collectors;
 import advent.calendar.day1.Day1Manual;
+import advent.calendar.day8.TreeVisibility;
+import advent.calendar.day8.Wood;
 
 public class App {
 
@@ -62,13 +64,13 @@ public class App {
 
     }
 
+    public static void day3() {
+        Wood w = new Wood();
+        System.out.println("Wood"+w.toString());
+    }
     public static void main(String[] args) throws IOException {
         System.out.println(new App().getGreeting());
-        new App().day1();
-        Day1Manual.day1Part1();
-        Day1Manual.day1Part2();
-        // new App().day2();
-        
+        day3();        
     }
 
     private void out(String s){
