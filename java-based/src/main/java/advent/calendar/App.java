@@ -65,6 +65,10 @@ public class App {
     }
 
     public static void day3() {
+        try (BufferedReader br = new App().getResourceAsBufferedReader(DAY1_INPUT)){
+        } catch (Exception e){
+
+        }
         Wood w = new Wood();
         System.out.println("Wood"+w.toString());
     }
