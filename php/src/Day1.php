@@ -1,7 +1,9 @@
 <?php
+
 namespace Onine;
 
 require __DIR__ . '/../vendor/autoload.php';
+
 use Onine\Utils;
 
 // https://adventofcode.com/2022/day/1
@@ -9,26 +11,37 @@ use Onine\Utils;
 // Part One - Sum each block, return Max sum
 // Part Two - Sum each block, return sum of top 3 blocks
 
-// Arg dump for debugging
-var_dump($argv);
-if (strpos($argv[1], ' ') !== false) {
-  $argw = explode(" ", $argv[1]);
-  array_unshift($argw, $argv[2]);
-  $argv = $argw;
-}
-var_dump($argv);
 
-// override verbose
+
+/**
+ * Set manually, see {@link logger}
+ */
 $debug = true;
-// Default operations for these tasks is to be noisy and work on the small dataset
+if ($debug) {
+  var_dump($argv);
+}
+/**
+ * Default operations for these tasks is to be noisy
+ */
 $verbose = true;
+/** 
+ * Default operations on small dataset
+ */
 define("DEFAULTDATASET", "small");
-$dataset = "small";
-// Check for any argv with the string q or quiet
+$dataset = DEFAULTDATASET;
+/**
+ * 
+ */
 foreach ($argv as $param) {
   if ($param == $argv[0]) {
+    /*
+     * skip $argv[0] which is the script calling string
+     * i.e. $ php php/src/Day1.php
+     * [DEBUG] skipping arg: php/src/Day1.ph
+     */
+    // 
     if ($debug) {
-      Utils::logger("[DEBUG] skipping arg: ${param}");
+      logger("skipping first arg: {$param}");
     }
   } else {
     switch ($param) {
@@ -36,47 +49,107 @@ foreach ($argv as $param) {
       case 'q':
       case 'quiet':
         if ($debug) {
-          Utils::logger("[DEBUG] quiet requested");
+          logger("quiet requested");
         }
         $verbose = false;
         break;
       case 'everything':
       case 'full':
         if ($dataset == DEFAULTDATASET) {
-          if ($debug) {
-            Utils::logger("[DEBUG] full input.txt");
-          }
+          logger("full input.txt");
           $dataset = "";
         } else {
-          Utils::logger("[WARNING] dataset previous set, failing to set $param");
+          logger("[WARNING] Please only provide one dataset, failing to set $param", true);
         }
         break;
       case 'tiny':
         if ($dataset == DEFAULTDATASET) {
-          if ($debug) {
-            Utils::logger("[DEBUG] smaller ${param}input.txt");
-          }
-          $dataset = "${param}";
+          logger("smaller {$param}input.txt");
+          $dataset = "{$param}";
         } else {
-          Utils::logger("[WARNING] dataset previous set, failing to set $param");
+          logger("[WARNING] Please only provide one dataset, failing to set $param", true);
         }
         break;
       default:
-        if ($debug) {
-          Utils::logger("[DEBUG] unrecognized arg: '${param}'");
+        logger("unrecognized arg: '{$param}'", $verbose);
+    }
+    break;
+  }
+}
+
+function partOne(bool $usePartTwo = false)
+{
+  if ($usePartTwo) {
+    return partTwo(1);
+  } else {
+    global $dataset, $debug, $verbose;
+    // https://adventofcode.com/2022/day/1
+    // input list blocks separated by blank line (or eof)
+    // Part One - Sum each block, return Max sum
+    $inputObject = Utils::getinput(1, $dataset);
+    if ($inputObject == false) {
+      logger("FAIL", true);
+    }
+    $biggestElf = 0;
+    $currentElf = 0;
+    foreach ($inputObject as $k => $line) {
+      // if ($debug || $verbose) {
+      //   var_dump($k);
+      //   var_dump($line);
+      // }
+      // logger("Parsing line: " . ($inputObject->key() + 1) . ': ' . $inputObject->current());
+      logger("Parsing line: $line");
+      logger("Biggest elf: $biggestElf");
+      logger("Current Elf:$currentElf");
+      # is empty string? compare and set biggest elf from current elf
+      if($line == "\n"){
+        logger("End of elf: $currentElf");
+        if($currentElf >= $biggestElf){
+          logger("Setting biggestElf");
+          $biggestElf = $currentElf;
         }
-        # code...
-        break;
+        # reset current elf
+        $currentElf = 0;
+      }
+      # otherwise add to currentelf
+      $lineValue = intval($line);
+      logger("adding $lineValue to $currentElf");
+      $currentElf = $currentElf + $lineValue;
+      
+    }
+    return $biggestElf;
+  }
+}
+function partTwo(int $topCount = 3)
+{ // https://adventofcode.com/2022/day/1
+  // input list blocks separated by blank line (or eof)
+  // Part Two - Sum each block, return sum of top 3 blocks
+  global $dataset;
+  $inputObject = Utils::getinput(1, $dataset);
+}
+
+/**
+ * @param string $message
+ * @param bool $always DEFAULT false - ignores $verbose
+ * @return NULL
+ */
+
+function logger(string $message, bool $always = false)
+{
+  global $debug, $verbose;
+  if ($debug) {
+    Utils::logger("[DEBUG] {$message}");
+  } else {
+    if ($verbose) {
+      Utils::logger($message, $verbose);
+    } elseif ($always) {
+      Utils::logger("[INFO] {$message}");
     }
   }
 }
-if ($debug) {
-  if ($dataset == "small") {
-    Utils::logger("[DEBUG] smaller smallinput.txt");
-  }
-}
 
-
-$input = Utils::getinput(1,$dataset);
-echo $input;
-?>
+$input = Utils::getinput(1, $dataset);
+echo "day1 $dataset";
+var_dump($input);
+echo "\n";
+logger ("Biggest elf: " . partOne(),true);
