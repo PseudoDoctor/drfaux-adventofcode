@@ -69,9 +69,9 @@ class Utils
         $assumedfilepath = "{$project->getRealPath()}/day{$day}/{$requestedfilename}";
 
         
-        self::logger("Looking for: $assumedfilepath");
+        self::logger("Looking for: $assumedfilepath",true);
         if (file_exists($assumedfilepath)) {
-            self::logger("File exists");
+            self::logger("File exists",true);
             $f = new SplFileInfo($assumedfilepath);
             return $f->openFile();
         }
@@ -86,7 +86,7 @@ class Utils
 
     public static function logger(string $message, bool $isverbose = false)
     {
-        if (!$isverbose) {
+        if ($isverbose) {
             echo "[VERBOSE]" . $message;
         } else {
             echo $message;

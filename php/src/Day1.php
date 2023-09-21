@@ -16,7 +16,7 @@ use Onine\Utils;
 /**
  * Set manually, see {@link logger}
  */
-$debug = true;
+$debug = false;
 if ($debug) {
   var_dump($argv);
 }
@@ -102,9 +102,9 @@ function partOne(bool $usePartTwo = false)
       logger("Biggest elf: $biggestElf");
       logger("Current Elf:$currentElf");
       # is empty string? compare and set biggest elf from current elf
-      if($line == "\n"){
+      if ($line == "\n") {
         logger("End of elf: $currentElf");
-        if($currentElf >= $biggestElf){
+        if ($currentElf >= $biggestElf) {
           logger("Setting biggestElf");
           $biggestElf = $currentElf;
         }
@@ -115,17 +115,54 @@ function partOne(bool $usePartTwo = false)
       $lineValue = intval($line);
       logger("adding $lineValue to $currentElf");
       $currentElf = $currentElf + $lineValue;
-      
     }
     return $biggestElf;
   }
 }
-function partTwo(int $topCount = 3)
+function partTwo(int $topCount = 3): int
 { // https://adventofcode.com/2022/day/1
   // input list blocks separated by blank line (or eof)
   // Part Two - Sum each block, return sum of top 3 blocks
-  global $dataset;
+  global $dataset, $verbose, $debug;
   $inputObject = Utils::getinput(1, $dataset);
+  $elfs = array();
+  $currentElf = 0;
+  foreach ($inputObject as $k => $line) {
+    // if ($debug || $verbose) {
+    //   var_dump($k);
+    //   var_dump($line);
+    // }
+    // logger("Parsing line: " . ($inputObject->key() + 1) . ': ' . $inputObject->current());
+    logger("Parsing line: $line");
+    if ($line == "\n") {
+      logger("End of elf: $currentElf");
+      array_push($elfs, $currentElf);
+      $currentElf = 0;
+    } else {
+      $lineValue = intval($line);
+      logger("adding $lineValue to $currentElf");
+      $currentElf = $currentElf + $lineValue;
+    }
+  }
+  if($verbose || $debug ){
+    logger("All unsorted elfs: ");
+    print_r($elfs);
+  }
+  rsort($elfs);
+  if($verbose || $debug ){
+    logger("All sorted elfs: ");
+    print_r($elfs);
+  }
+  $total = 0;
+  $count = count($elfs);
+  $counted = 0;
+  logger("add");
+  for ($i = 0; $i < $topCount; $i++) {
+    logger("Adding {$elfs[$i]} to {$total}");
+    $total = $total + $elfs[$i];
+  }
+
+  return $total;
 }
 
 /**
@@ -143,7 +180,7 @@ function logger(string $message, bool $always = false)
     if ($verbose) {
       Utils::logger($message, $verbose);
     } elseif ($always) {
-      Utils::logger("[INFO] {$message}");
+      Utils::logger("[INFO] {$message}",false);
     }
   }
 }
@@ -152,4 +189,6 @@ $input = Utils::getinput(1, $dataset);
 echo "day1 $dataset";
 var_dump($input);
 echo "\n";
-logger ("Biggest elf: " . partOne(),true);
+// logger("Biggest elf: " . partOne(), true);
+logger("Top 3 elfs total: " . partTwo(),true);
+logger("Top 1 elf total: " . partOne(true),true);
