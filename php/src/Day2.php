@@ -7,9 +7,8 @@ require __DIR__ . '/../vendor/autoload.php';
 use Onine\Utils;
 use SplFileObject;
 
-use function Onine\partOne as OninePartOne;
-
-/* PART 1
+/* Day 2 Rock Paper Scissors
+ * 
  * https://adventofcode.com/2022/day/2
  * Rock Paper Scissors
  * R beats S
@@ -17,7 +16,7 @@ use function Onine\partOne as OninePartOne;
  * P beats R
  * Draw possible
  * 
- * Score
+ * Score play + outcome
  * 1 Rock
  * 2 Paper
  * 3 Scissors
@@ -27,7 +26,8 @@ use function Onine\partOne as OninePartOne;
  * 
  */
 
-$dataset = "small";
+$dataset = "";
+$verbose = false;
 class Day2
 {
     /** partOne
@@ -58,16 +58,17 @@ class Day2
             $trimmed = trim($line);
             if ($trimmed == "") {
             } else {
-                Utils::logger("Processing '$trimmed'");
+                self::logger("Processing '$trimmed'");
                 $score = Rps::score(substr($trimmed, 0, 1), substr($trimmed, 2, 1));
-                Utils::logger("Score: " . $score);
+                self::logger("Score: " . $score);
                 $total = $total + $score;
             }
         }
-        Utils::logger("Total: $total");
+        self::logger("Total: $total");
         return $total;
     }
     /** partTwo
+     * 
      * Input
      * Opponent
      * A for Rock
@@ -77,6 +78,13 @@ class Day2
      * X to Lose
      * Y to Draw
      * Z to Win
+     * 
+     * i.e. <pre>A Y
+     * B X
+     * C Z</pre>
+     * In the first round, your opponent will choose Rock (A), and you need the round to end in a draw (Y), so you also choose Rock. This gives you a score of 1 + 3 = 4.
+     * In the second round, your opponent will choose Paper (B), and you choose Rock so you lose (X) with a score of 1 + 0 = 1.
+     * In the third round, you will defeat your opponent's Scissors with Rock for a score of 1 + 6 = 7.
      */
     public static function partTwo(SplFileObject $in, bool $verbose = false): int
     {
@@ -86,13 +94,12 @@ class Day2
             $trimmed = trim($line);
             if ($trimmed == "") {
             } else {
-                Utils::logger("Processing '$trimmed'");
+                self::logger("Processing '$trimmed'");
                 $left = substr($trimmed, 0, 1);
                 $right = substr($trimmed, 2, 1);
-                if($right == "Y"){
-                    $score = Rps::score($left, $left);
-                   
-                } elseif ($right == "X") {
+                $score = 0;
+                if ($right == "X") {
+                    // Need loss, play $left minus 1.
                     if($left =="A"){
                         $score = Rps::score($left,"C");
                     }
@@ -102,7 +109,12 @@ class Day2
                     if($left =="C"){
                         $score = Rps::score($left,"B");
                     }
+                } elseif($right == "Y"){
+                    // Need a draw, play the same as opponent
+                    $score = Rps::score($left, $left);
+                   
                 } elseif ($right == "Z") {
+                    // Need win, play $left plus 1
                     if($left =="A"){
                         $score = Rps::score($left,"B");
                     }
@@ -113,15 +125,22 @@ class Day2
                         $score = Rps::score($left,"A");
                     }
                 }
-                Utils::logger("Score: " . $score);
-                
+                self::logger("Score: " . $score);
+                $total = $total + $score;
             }
         }
-        return 0;
+        self::logger("Total: $total");
+        return $total;
+    }
+    public static function logger(string $message,bool $always = false){
+        global $verbose;
+        if($verbose || $always){
+            // This always uses Utils::logger, everything else should use Day2::logger (which gets them here)
+            Utils::logger($message);
+        }
+
     }
 }
-
-
 
 class Rps
 {
@@ -153,35 +172,35 @@ class Rps
     {
         $actualLeft = self::$play[$left];
         $actualRight = self::$play[$right];
-        Utils::logger("Scoring '$actualLeft' vs '$actualRight'");
+        Day2::logger("Scoring '$actualLeft' vs '$actualRight'");
         if ($actualLeft === $actualRight) {
-            Utils::logger("DRAW");
+            Day2::logger("DRAW");
             return self::$score[$actualRight] + self::$score["DRAW"];
         }
         if ($actualLeft === "Rock") {
             if ($actualRight === "Paper") {
-                Utils::logger("WIN");
+                Day2::logger("WIN");
                 return self::$score[$actualRight] + self::$score["WIN"];
             } else {
-                Utils::logger("LOSE");
+                Day2::logger("LOSE");
                 return self::$score[$actualRight] + self::$score["LOSE"];
             }
         }
         if ($actualLeft === "Paper") {
             if ($actualRight === "Scissors") {
-                Utils::logger("WIN");
+                Day2::logger("WIN");
                 return self::$score[$actualRight] + self::$score["WIN"];
             } else {
-                Utils::logger("LOSE");
+                Day2::logger("LOSE");
                 return self::$score[$actualRight] + self::$score["LOSE"];
             }
         }
         if ($actualLeft === "Scissors") {
             if ($actualRight === "Rock") {
-                Utils::logger("WIN");
+                Day2::logger("WIN");
                 return self::$score[$actualRight] + self::$score["WIN"];
             } else {
-                Utils::logger("LOSE");
+                Day2::logger("LOSE");
                 return self::$score[$actualRight] + self::$score["LOSE"];
             }
         }
@@ -191,5 +210,5 @@ class Rps
 
 
 $inputObject = Utils::getinput(2, $dataset);
-// Day2::partOne($inputObject);
-Day2::partTwo($inputObject);
+Day2::logger(Day2::partOne($inputObject),true);
+Day2::logger(Day2::partTwo($inputObject),true);
