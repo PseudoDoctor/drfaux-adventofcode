@@ -23,31 +23,33 @@ use function Onine\partOne as OninePartOne;
  * 3 Scissors
  * 0 Lost
  * 3 Draw
- * 6 Won
+ * 6 Win
  * 
- * Input
- * Opponent
- * A for Rock
- * B for Paper
- * C for Scissors
- * Response
- * X for Rock
- * Y for Paper
- * Z for Scissors
- * 
- * i.e.
- * A Y - Opponent is going to play A(Rock), you should play Y(Paper). You win the round and get 2 points for Paper and 6 points for winning, total 8 points.
- * B X - B Paper, play X Rock. 1 point for Rock, 0 point for Loss, total 1.
- * C Z - C Scissors, play Z Scissors. 3 points for Scissors, 3 points for Draw, total 6 points.
- * 
- * 8+1+6=15
- * 
- * return 15
  */
 
 $dataset = "small";
 class Day2
 {
+    /** partOne
+     * Input
+     * Opponent
+     * A for Rock
+     * B for Paper
+     * C for Scissors
+     * Response
+     * X for Rock
+     * Y for Paper
+     * Z for Scissors
+     * 
+     * i.e.
+     * A Y - Opponent is going to play A(Rock), you should play Y(Paper). You win the round and get 2 points for Paper and 6 points for winning, total 8 points.
+     * B X - B Paper, play X Rock. 1 point for Rock, 0 point for Loss, total 1.
+     * C Z - C Scissors, play Z Scissors. 3 points for Scissors, 3 points for Draw, total 6 points.
+     * 
+     * 8+1+6=15
+     * 
+     * return 15
+     */
     public static function partOne(SplFileObject $in, bool $verbose = false): int
     {
         $total = 0;
@@ -65,6 +67,17 @@ class Day2
         Utils::logger("Total: $total");
         return $total;
     }
+    /** partTwo
+     * Input
+     * Opponent
+     * A for Rock
+     * B for Paper
+     * C for Scissors
+     * Response
+     * X to Lose
+     * Y to Draw
+     * Z to Win
+     */
     public static function partTwo(SplFileObject $in, bool $verbose = false): int
     {
         $total = 0;
@@ -74,6 +87,34 @@ class Day2
             if ($trimmed == "") {
             } else {
                 Utils::logger("Processing '$trimmed'");
+                $left = substr($trimmed, 0, 1);
+                $right = substr($trimmed, 2, 1);
+                if($right == "Y"){
+                    $score = Rps::score($left, $left);
+                   
+                } elseif ($right == "X") {
+                    if($left =="A"){
+                        $score = Rps::score($left,"C");
+                    }
+                    if($left =="B"){
+                        $score = Rps::score($left,"A");
+                    }
+                    if($left =="C"){
+                        $score = Rps::score($left,"B");
+                    }
+                } elseif ($right == "Z") {
+                    if($left =="A"){
+                        $score = Rps::score($left,"B");
+                    }
+                    if($left =="B"){
+                        $score = Rps::score($left,"C");
+                    }
+                    if($left =="C"){
+                        $score = Rps::score($left,"A");
+                    }
+                }
+                Utils::logger("Score: " . $score);
+                
             }
         }
         return 0;
@@ -84,6 +125,25 @@ class Day2
 
 class Rps
 {
+    
+    public static $score = array(
+        "WIN" => 6,
+        "LOSE" => 0,
+        "DRAW" => 3,
+        "Rock" => 1,
+        "Paper" => 2,
+        "Scissors" => 3
+    );
+
+    public static $play = array(
+        "A" => "Rock",
+        "B" => "Paper",
+        "C" => "Scissors",
+        "X" => "Rock",
+        "Y" => "Paper",
+        "Z" => "Scissors",
+    );
+
     /**
      * @param string $left A,B,C
      * @param string $right X,Y,Z
@@ -91,54 +151,38 @@ class Rps
      */
     public static function score(string $left, string $right): int
     {
-        $score = array(
-            "WIN" => 6,
-            "LOSE" => 0,
-            "DRAW" => 3,
-            "Rock" => 1,
-            "Paper" => 2,
-            "Scissors" => 3
-        );
-        $play = array(
-            "A" => "Rock",
-            "B" => "Paper",
-            "C" => "Scissors",
-            "X" => "Rock",
-            "Y" => "Paper",
-            "Z" => "Scissors",
-        );
-        $actualLeft = $play[$left];
-        $actualRight = $play[$right];
+        $actualLeft = self::$play[$left];
+        $actualRight = self::$play[$right];
         Utils::logger("Scoring '$actualLeft' vs '$actualRight'");
         if ($actualLeft === $actualRight) {
             Utils::logger("DRAW");
-            return $score[$actualRight] + $score["DRAW"];
+            return self::$score[$actualRight] + self::$score["DRAW"];
         }
         if ($actualLeft === "Rock") {
             if ($actualRight === "Paper") {
                 Utils::logger("WIN");
-                return $score[$actualRight] + $score["WIN"];
+                return self::$score[$actualRight] + self::$score["WIN"];
             } else {
                 Utils::logger("LOSE");
-                return $score[$actualRight] + $score["LOSE"];
+                return self::$score[$actualRight] + self::$score["LOSE"];
             }
         }
         if ($actualLeft === "Paper") {
             if ($actualRight === "Scissors") {
                 Utils::logger("WIN");
-                return $score[$actualRight] + $score["WIN"];
+                return self::$score[$actualRight] + self::$score["WIN"];
             } else {
                 Utils::logger("LOSE");
-                return $score[$actualRight] + $score["LOSE"];
+                return self::$score[$actualRight] + self::$score["LOSE"];
             }
         }
         if ($actualLeft === "Scissors") {
             if ($actualRight === "Rock") {
                 Utils::logger("WIN");
-                return $score[$actualRight] + $score["WIN"];
+                return self::$score[$actualRight] + self::$score["WIN"];
             } else {
                 Utils::logger("LOSE");
-                return $score[$actualRight] + $score["LOSE"];
+                return self::$score[$actualRight] + self::$score["LOSE"];
             }
         }
         return 0;
@@ -147,4 +191,5 @@ class Rps
 
 
 $inputObject = Utils::getinput(2, $dataset);
-Day2::partOne($inputObject);
+// Day2::partOne($inputObject);
+Day2::partTwo($inputObject);
