@@ -44,6 +44,9 @@ foreach ($argv as $param) {
       logger("skipping first arg: {$param}");
     }
   } else {
+    if($debug) {
+      logger("checking param $param");
+    }
     switch ($param) {
       case '-q':
       case 'q':
@@ -55,6 +58,7 @@ foreach ($argv as $param) {
         break;
       case 'everything':
       case 'full':
+        logger("Full requested.");
         if ($dataset == DEFAULTDATASET) {
           logger("full input.txt");
           $dataset = "";
@@ -71,9 +75,8 @@ foreach ($argv as $param) {
         }
         break;
       default:
-        logger("unrecognized arg: '{$param}'", $verbose);
+        logger("unrecognized arg: '{$param}'", true);
     }
-    break;
   }
 }
 
@@ -189,6 +192,6 @@ $input = Utils::getinput(1, $dataset);
 echo "day1 $dataset";
 var_dump($input);
 echo "\n";
-// logger("Biggest elf: " . partOne(), true);
+logger("Biggest elf: " . partOne(), true);
 logger("Top 3 elfs total: " . partTwo(),true);
 logger("Top 1 elf total: " . partOne(true),true);
