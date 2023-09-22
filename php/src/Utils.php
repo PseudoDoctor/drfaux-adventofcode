@@ -1,13 +1,27 @@
 <?php
+
 namespace Onine;
 
 require __DIR__ . '/../vendor/autoload.php';
+
+
 use Onine\Greetings;
 use SplFileInfo;
 use SplFileObject;
 
 class Utils
 {
+    /**
+     * if @link logger request is greater than this, log it
+     * <pre>    case DEBUG = 1;
+     *     case VERBOSE = 20;
+     *     case INFO = 50; (DEFAULT)
+     *     case QUIET = 75;
+     *     case WARNING = 98;
+     *     case ALWAYS = 99;</pre>
+     * @var LogLevel
+     */
+    public LogLevel $logState = LogLevel::INFO;
     public static function hello()
     {
         echo Greetings::sayHelloWorld();
@@ -22,7 +36,7 @@ class Utils
      */
     public static function getinput(int $day, string $inputType = "", bool $verbose = false): SplFileObject|bool
     {
-        
+
         // This dir is ./php/src/
         // input dirs are ./php/../dayX
         // regular intput is dayX/input.txt
@@ -63,35 +77,44 @@ class Utils
         $me = new SplFileInfo(__FILE__);
         $mom = $me->getPath();
         // $mom should be $project/php/src i.e. /home/mhill/personal/pseudodoctor-advent-2022/php/src
-        $project = new SplFileInfo( $mom . "/../../");
+        $project = new SplFileInfo($mom . "/../../");
         // $project should have day1-25 folders i.e. /home/mhill/personal/pseudodoctor-advent-2022/day1
         $requestedfilename = "{$inputType}input.txt";
         $assumedfilepath = "{$project->getRealPath()}/day{$day}/{$requestedfilename}";
 
-        
-        self::logger("Looking for: $assumedfilepath",true);
+
+        self::logger("Looking for: $assumedfilepath", LogLevel::VERBOSE);
         if (file_exists($assumedfilepath)) {
-            self::logger("File exists",true);
+            self::logger("File exists", LogLevel::VERBOSE);
             $f = new SplFileInfo($assumedfilepath);
             return $f->openFile();
         }
-        self::logger("Cannot find file for day{$day} {$inputType}input.txt", true);
+        self::logger("Cannot find file for day{$day} {$inputType}input.txt", LogLevel::WARNING);
         return false;
     }
+
+
     /**
+     * Compares $logState to $logLevel. If $logLevel >= $lotState, log it with prefix, unless ALWAYS then no prefix.
+     *
      * @param string $message
-     * @param bool $isverbose
-     * @return NULL (outputs based on isverbose)
+     * @param LogLevel $logLevel
+     * @return void
      */
+    public static function logger(
+        string $message,
+        LogLevel $logLevel = LogLevel::INFO
+    ): void {
 
-    public static function logger(string $message, bool $isverbose = false)
-    {
-        if ($isverbose) {
-            echo "[VERBOSE]" . $message;
-        } else {
-            echo $message;
-        }
-        echo "\n";
     }
-
 }
+enum LogLevel: int
+{
+    case DEBUG = 1;
+    case VERBOSE = 20;
+    case INFO = 50;
+    case QUIET = 75;
+    case WARNING = 98;
+    case ALWAYS = 99;
+}
+
