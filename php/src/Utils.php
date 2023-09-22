@@ -103,18 +103,12 @@ class Utils
      */
     public static function logger(
         string $message,
-        LogLevel $logLevel = LogLevel::INFO
+        LogLevel $logLevel = LogLevel::INFO,
+        LogLevel $logState = LogLevel::INFO
     ): void {
-
+echo "[EXCESSIVE " . $logState->name . " " . $logLevel->name ."] " . $message . "\n";
     }
 }
-enum LogLevel: int
-{
-    case DEBUG = 1;
-    case VERBOSE = 20;
-    case INFO = 50;
-    case QUIET = 75;
-    case WARNING = 98;
-    case ALWAYS = 99;
-}
+
+
 
