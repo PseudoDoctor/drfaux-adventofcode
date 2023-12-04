@@ -101,7 +101,7 @@ class Day1
       }
     }
     print_r($utils);
-    $log = $utils::$logState;
+//    $log = $utils::$logState;
     // if ($utils::$logState->value >= LogLevel::VERBOSE->value) {
     //   $utils::logger("All unsorted elfs: ", LogLevel::VERBOSE);
     //   print_r($elfs);
