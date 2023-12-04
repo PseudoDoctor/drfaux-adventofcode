@@ -1,9 +1,2 @@
 {
-    "name": "onine/advent",
-    "autoload": {
-        "psr-4": {
-            "Onine\\": "src/"
-        }
-    },
-    "require": {}
 }
