@@ -7,6 +7,7 @@ $mediumInputFile = "mediuminput.txt";
 $handle = fopen("$smallInputFile", "r");
 //$handle = fopen("$mediumInputFile", "r");
 //$handle = fopen("$inputFile", "r");
+
 $allLines = array();
 //print_r($handle);
 if ($handle) {
@@ -49,107 +50,38 @@ $thisNumberArr = array();
 $validDigits = range(0, 9);
 $notSymbols = $validDigits;
 $notSymbols[] = ".";
+$notSymbols[] = "\n";
 //print_r($notSymbols);
 foreach ($allLines as $lineIdx => $lineArr) {
+    $tmpNumber = array();
     foreach ($lineArr as $charIdx => $char) {
-        if ($char == "*"){
-            echo "Adding Gear at [$lineIdx][$charIdx]\n";
-            $gear = [$lineIdx,$charIdx];
-            $allGears[] = $gear;
-        }
-        // If is digit, add to $thisNumberArr
-        if (in_array($char,$validDigits)) {
-            $thisNumberArr[$charIdx] = $char;
+        /*
+         * If symbol, add to list of symbols.
+         *   - Gears will be filtered later.
+         * If number, add to list of numbers with each digits location.
+         *   - Find symbols near each digit.
+         */
+        if (in_array($char, $validDigits)) {
+            // This is a digit, add it to $tmpNumber
+            $tmpNumber[] = ["char"=>$char, "lineIdx"=>$lineIdx, "charIdx"=>$charIdx];
         } else {
-            // Otherwise process $thisNumberArr
-//            echo "\nProcessing Number:\n";
-//            print_r($thisNumberArr);
-            $isNotPartNumber = true;
-            foreach ($thisNumberArr as $digitIdx => $digit) {
-//                echo "\nProcessing digit at $lineIdx,$digitIdx which is '$digit'";
-
-                $range = range(-1, 1, 1);
-                foreach ($range as $vert) {
-                    $lineLookup = $lineIdx + $vert;
-                    if (in_array($lineLookup, range($lineFirst, $lineLast))) {
-                        foreach ($range as $hori) {
-                            $charLookup = $digitIdx + $hori;
-                            if (in_array($charLookup, range($lineStart, $lineEnd))) {
-                                // Process char lookup at $allLines[$lineLookup][$charLookup]
-                                $lookedupChar = $allLines[$lineLookup][$charLookup];
-//                                echo "\nLooked up Char at $lineLookup,$charLookup is '$lookedupChar'";
-                                // Is a symbol (or is not a number nor a dot)
-                                if (!in_array($lookedupChar, $notSymbols)) {
-//                                    echo "SYMBOL";
-                                    $isNotPartNumber = false;
-                                }
-
-                            }
-                        }
-                    }
+            // process number
+            if (!$tmpNumber == array()) {
+                $str = "";
+                foreach ($tmpNumber as $d) {
+                    $str = $str . $d["char"];
                 }
+                $int = intval($str);
+                echo $int . "\n";
+                $partNumbers[] = ["int"=>$int, "digits"=>$tmpNumber];
+                // clear tmp Number array
+                $tmpNumber = array();
             }
-            // Add if not empty and is missing.
-            $emptyArr = array();
-            if (!$thisNumberArr == $emptyArr) {
-                $thisString = "";
-                foreach ($thisNumberArr as $digit) {
-                    $thisString = $thisString . "$digit";
-                }
-                $thisNumber = intval($thisString);
-                if (! $isNotPartNumber) {
-                    $partNumbers[] = $thisNumber;
-                }
+            // symbols
+            if (!in_array($char, $notSymbols)) {
+                $allSymbols[] = ["char"=>$char, "lineIdx"=>$lineIdx, "charIdx"=>$charIdx];
             }
-            // reset
-
-            $thisNumberArr = array();
         }
     }
 }
-// We now have an array of possible gear locations.
-// If we assume no part number can be more than 3 digits, then each gear can only have digits in the three lines nearest
-//  And the places 3 left and 3 right, meaning a 7x3 grid.
-
-$width=range(-3,3);
-$height=range(-1,1);
-foreach ($allGears as $gear) {
-    $localChars = array();
-    echo "Gear at {$gear[0]},{$gear[1]}\n";
-    foreach ($height as $l){
-        foreach ($width as $c){
-            $localChars[$gear[0]-$l][$gear[1]-$c] = $allLines[$gear[0]-$l][$gear[1]-$c];
-            echo $allLines[$gear[0]-$l][$gear[1]-$c];
-        }
-        echo "\n";
-    }
-    print_r($localChars);
-    // First look at lines, since part numbers can only be in a line.
-    $localDigits = array();
-    $localParts = array();
-    foreach ($height as $lineOffset){
-        // Then look at the immediate digits
-        foreach($height as $charOffset){
-            if(in_array($allLines[$gear[0]+$lineOffset][$gear[1]+$charOffset],$validDigits)){
-                echo "Found digit near gear: {$allLines[$gear[0]+$lineOffset][$gear[1]+$charOffset]}\n";
-                $localDigits[] = [$gear[0]+$lineOffset,$gear[1]+$charOffset];
-            }
-        }
-        foreach ($localDigits as $digit){
-            foreach ($width as $offset){
-                // Digit has x,y
-            }
-        }
-    }
-    // Only contiguous strings of digits that include values in $localDigits can be considered.
-
-}
-
-//print_r($partNumbers);
-$sum = 0;
-foreach ($partNumbers as $num){
-    $sum += $num;
-}
-//sort($partNumbers);
-//print_r($partNumbers);
-//echo "\nPart Number Sum: $sum";
+print_r($allSymbols);
