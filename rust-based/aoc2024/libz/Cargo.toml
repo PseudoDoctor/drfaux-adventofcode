@@ -1,7 +1,6 @@
 [package]
-name = "aoc2024"
+name = "libz"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-libz = { path = "libz"}
