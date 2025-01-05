@@ -1,17 +1,14 @@
 
 use std::{
-    fs::{self, metadata, File},
-    io::{BufRead, BufReader, Read},
+    fs::{metadata, File},
+    io::Read,
     str,
-    cmp,
-    env,
     path::PathBuf,
 };
 
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
-/// Does String exists (uses std::fs::metadata)
+
+
+/// Does path exist? (Uses &str and passes through std::fs::metadata)
 pub fn exists_str(path: &str) -> bool {
     if metadata(path).is_ok() {
         let md = metadata(path).unwrap();
@@ -27,7 +24,7 @@ pub fn testday1(){
     // path.push("day1");
     // println!("The current directory is {}", path.);
     let project_path="/Users/onine/git/drfaux-adventofcode/rust-based/aoc2024";
-    let src_path="/src";
+                    let _src_path="/src";
     let day1_path="/day1";
     let day1_small_input=format!("{}{}/smallinput.txt",project_path,day1_path);
     println!("{} exists? {}",day1_small_input,exists_str(&day1_small_input));
@@ -38,7 +35,7 @@ pub fn testday1(){
     println!("Input:\n{}",s);
     
 }
-
+/// Get day's input.txt and returns as a Vec<u8> (Vector of Unicode-8 regardless of printability)
 pub fn get_input(day_number: i8,is_small: bool) -> Vec<u8>{
     assert!(day_number > 0 || day_number < 26);
     let input;
@@ -49,13 +46,20 @@ pub fn get_input(day_number: i8,is_small: bool) -> Vec<u8>{
         small = "";
     }
     input = format!("./day{}/{}input.txt",day_number,small);
-    println!("Looking for input: {}",input);
+    // println!("Looking for input: {}",input);
     let input_path = PathBuf::from(input);
     assert!(input_path.exists());
     let data = std::fs::read(input_path);
     return data.unwrap()
 }
-fn dump_file(path: &str) -> Vec<u8> {
+/// Convert Vec<u8> to String (See get_input which uses std::fs::read )
+pub fn vec2string(v: Vec<u8>) -> String {
+    let s = String::from_utf8(v).expect("Found invalid UTF-8");
+    return s
+}
+
+/// Legacy get_input alternative
+pub fn dump_file(path: &str) -> Vec<u8> {
     let mut file = File::open(path).unwrap();
     // let mut contents = String::new();
     // file.read_to_string(&mut contents).unwrap();
@@ -66,6 +70,11 @@ fn dump_file(path: &str) -> Vec<u8> {
         _ => (),
     }
     data
+}
+
+// Leftover tutorial stuff
+pub fn add(left: u64, right: u64) -> u64 {
+    left + right
 }
 
 pub fn public_function() {
