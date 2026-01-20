@@ -16,30 +16,36 @@ def shift_inject(new_digit, index, original_list):
     # print(s)
     return s
 
-def get_largest_integer(digit_string, k=12):
+
+def get_largest_subsequence(digit_string, k=12):
     stack = []
-    # We need to remove this many digits to be left with k
+    # How many digits we are allowed to discard
     to_remove = len(digit_string) - k
-    
+
     for digit in digit_string:
-        # While we have digits to remove and the current digit is 
-        # larger than the last one we saved, discard the smaller one.
+        # While we can still remove digits and the current digit is bigger
+        # than the last one we kept, discard the smaller one.
         while to_remove > 0 and stack and stack[-1] < digit:
             stack.pop()
             to_remove -= 1
         stack.append(digit)
-    
-    # In case we still need to remove digits (e.g., the string was decreasing)
-    result_string = "".join(stack[:k])
-    return int(result_string)
 
-def process_line_part2(str, bat_count):
+    # Ensure we only return exactly k digits
+    # (handles cases where the string was already decreasing)
+    result = "".join(stack[:k])
+    # print(f"{len(result)} {result}")
+    thing = int(result)
+    # print(len(f"{thing}"), thing)
+    return int(result)
+
+
+def process_line_part2(str, bat_count=12):
     axual = str.strip()
     lenn = len(axual)
     max_jolts = 0
     print(f"{lenn} {axual}")
     # magix
-    return get_largest_integer(str,12)
+    return get_largest_subsequence(str)
 
 
 def process_line_part1(str):
@@ -92,7 +98,8 @@ def open_myself(filename):
                     break
                 else:
                     # jolts = process_line_part1(buff)
-                    jolts = process_line_part2(buff, 3)
+                    jolts = process_line_part2(buff.strip())
+                    print(jolts)
                     total_jolts += jolts
         print(f"Jolts: {total_jolts}")
 
