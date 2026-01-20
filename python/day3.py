@@ -4,11 +4,42 @@ import os
 from pathlib import Path
 
 
+def list_to_int(list):
+    return "".join(map(str, list))
+
+
+def shift_inject(new_digit, index, original_list):
+    t = original_list
+    print(index)
+    # print(t)
+    s = original_list[: index - 1] + original_list[index:] + [new_digit]
+    # print(s)
+    return s
+
+def get_largest_integer(digit_string, k=12):
+    stack = []
+    # We need to remove this many digits to be left with k
+    to_remove = len(digit_string) - k
+    
+    for digit in digit_string:
+        # While we have digits to remove and the current digit is 
+        # larger than the last one we saved, discard the smaller one.
+        while to_remove > 0 and stack and stack[-1] < digit:
+            stack.pop()
+            to_remove -= 1
+        stack.append(digit)
+    
+    # In case we still need to remove digits (e.g., the string was decreasing)
+    result_string = "".join(stack[:k])
+    return int(result_string)
+
 def process_line_part2(str, bat_count):
-    lenn = len(str)
+    axual = str.strip()
+    lenn = len(axual)
     max_jolts = 0
+    print(f"{lenn} {axual}")
     # magix
-    return max_jolts
+    return get_largest_integer(str,12)
 
 
 def process_line_part1(str):
@@ -66,4 +97,4 @@ def open_myself(filename):
         print(f"Jolts: {total_jolts}")
 
 
-open_myself("day3/smallinput.txt")
+open_myself("day3/biginput.txt")
